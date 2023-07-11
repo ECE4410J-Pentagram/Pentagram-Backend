@@ -7,8 +7,6 @@ from config import config
 class User(BaseModel):
     username = CharField(unique=True)
     hashed_password = CharField()
-    password_salt = CharField()
-    password_algo = CharField()
     public_key = CharField()
 
     def __str__(self):
@@ -17,22 +15,33 @@ class User(BaseModel):
     def __repr__(self):
         return self.__str__()
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.password_salt = bcrypt.gensalt().decode()
-        self.password_algo = config.DEFAULT_HASH
-        password = kwargs.get("password")
-        if password:
-            self.hashed_password = self._hash_password(password)
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.password_salt = bcrypt.gensalt().decode()
+    #     self.password_algo = config.DEFAULT_HASH
+    #     password = kwargs.get("password")
+    #     print(f"Password: {password}")
+    #     if password:
+    #         self.hashed_password = self._hash_password(password)
 
-    def _hash_password(self, password):
-        salted_password = password + self.password_salt
-        hasher = hashlib.new(str(self.password_algo))
-        hasher.update(salted_password.encode())
-        hashed_password = hasher.hexdigest()
-        return hashed_password
+    # def _hash_password(self, password):
+    #     salted_password = password + self.password_salt
+    #     hasher = hashlib.new(str(self.password_algo))
+    #     hasher.update(salted_password.encode())
+    #     hashed_password = hasher.hexdigest()
+    #     return hashed_password
 
-    def check_password(self, password):
-        hashed_password = self._hash_password(password)
-        return hashed_password == self.hashed_password
+    # def check_password(self, password):
+    #     hashed_password = self._hash_password(password)
+    #     print(hashed_password, self.hashed_password)
+    #     return hashed_password == self.hashed_password
         
+
+
+def hash_password(password):
+    salt = bcrypt.gensalt().decode()
+    hashed_password = bcrypt.hashpw(password.encode(), salt.encode()).decode()
+    return hashed_password
+
+def check_password(password, hashed_password):
+    return bcrypt.checkpw(password.encode(), hashed_password.encode())

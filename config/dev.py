@@ -4,3 +4,4 @@ class Config:
     PDB_PASS = "cryptex"
     PDB_HOST = "localhost"
     DEFAULT_HASH = "sha256"
+    JWT_SECRET = "secret"

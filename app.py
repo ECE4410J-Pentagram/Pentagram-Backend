@@ -1,8 +1,7 @@
-from config import config
-from flask import Flask
+from fastapi import FastAPI
+from renderers import user
 
-app = Flask(__name__)
-app.config.from_object(config)
+app = FastAPI()
+app.include_router(user.router)
+app.include_router(user.loginRouter)
 
-if __name__ == "__main__":
-    app.run()
