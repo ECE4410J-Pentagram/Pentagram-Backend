@@ -11,7 +11,7 @@ class User(BaseModel):
     password_algo = CharField()
 
     def __str__(self):
-        return f"User: {self.username} with public key: {self.public_key}"
+        return f"User: {self.username}"
 
     def __repr__(self):
         return self.__str__()
