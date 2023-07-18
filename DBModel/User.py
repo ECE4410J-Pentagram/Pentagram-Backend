@@ -9,7 +9,6 @@ class User(BaseModel):
     hashed_password = CharField()
     password_salt = CharField()
     password_algo = CharField()
-    public_key = CharField()
 
     def __str__(self):
         return f"User: {self.username} with public key: {self.public_key}"
