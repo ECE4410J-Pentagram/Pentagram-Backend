@@ -18,7 +18,7 @@ class TokenResponse(pydantic.BaseModel):
 router = APIRouter(prefix="/user", tags=["user"])
 
 @router.post("/", response_model=BaseUser)
-async def createUser(user: RegisterUser):
+async def create_user(user: RegisterUser):
     prev_user = User.select().where(User.username == user.username)
     if prev_user.exists():
         raise HTTPException(status_code=400, detail="Username already exists")
@@ -26,7 +26,7 @@ async def createUser(user: RegisterUser):
     return BaseUser(username=new_user.username)
     
 @router.get("/", response_model=BaseUser)
-async def getMe(user: BaseUser = Depends(loggedIn)):
+async def get_me(user: BaseUser = Depends(loggedIn)):
     return user
 
 loginRouter = APIRouter(prefix="/login", tags=["login"])
