@@ -22,7 +22,7 @@ async def create_user(user: RegisterUser):
     prev_user = User.select().where(User.username == user.username)
     if prev_user.exists():
         raise HTTPException(status_code=400, detail="Username already exists")
-    new_user = User.create(username=user.username, hashed_password=hash_password(user.password), public_key=user.public_key)
+    new_user = User.create(username=user.username, hashed_password=hash_password(user.password))
     return BaseUser(username=new_user.username)
     
 @router.get("/", response_model=BaseUser)

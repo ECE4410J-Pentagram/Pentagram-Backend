@@ -7,10 +7,9 @@ from config import config
 class User(BaseModel):
     username = CharField(unique=True)
     hashed_password = CharField()
-    public_key = CharField()
 
     def __str__(self):
-        return f"User: {self.username} with public key: {self.public_key}"
+        return f"User: {self.username}"
 
     def __repr__(self):
         return self.__str__()
