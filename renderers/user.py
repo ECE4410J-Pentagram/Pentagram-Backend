@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi import APIRouter, HTTPException, Request, Depends, Header
 from DBModel.User import User, hash_password, check_password
 from utils.models import BaseUser
 from utils.login import loggedIn, createToken
+from utils.login import logout as logout_func
 import pydantic
 
 class RegisterUser(BaseUser):
@@ -24,7 +25,7 @@ async def createUser(user: RegisterUser):
     new_user = User.create(username=user.username, hashed_password=hash_password(user.password), public_key=user.public_key)
     return BaseUser(username=new_user.username)
     
-@router.get("/")
+@router.get("/", response_model=BaseUser)
 async def getMe(user: BaseUser = Depends(loggedIn)):
     return user
 
@@ -39,3 +40,8 @@ async def login(user: LoginUser):
         raise HTTPException(status_code=400, detail="Password is incorrect")
     return TokenResponse(Authorization=createToken(BaseUser(username=prev_user.username)))
 
+logoutRouter = APIRouter(prefix="/logout", tags=["logout"])
+@logoutRouter.post("/")
+async def logout(Authorization: str = Header(...)):
+    logout_func(Authorization)
+    return {"message": "Logged out successfully"}

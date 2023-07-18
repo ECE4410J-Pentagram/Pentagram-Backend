@@ -1,8 +1,11 @@
-# Use postgres/example user/password credentials
-version: '3.1'
-
+version: '3.8'
 services:
-
+  redis:
+    image: redis:7.2-rc2
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server
   db:
     image: postgres
     restart: always

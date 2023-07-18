@@ -30,7 +30,10 @@ def loggedIn(Authorization: str = Header(...)):
     payload = TokenPayload.parse_raw(payload)
     
     username = payload.username
-    user = User.get_or_none(BaseUser.username == username)
+    user = User.get_or_none(username == username)
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
-    return user
+    return BaseUser(username=user.username)
+
+def logout(Authorization: str = Header(...)):
+    r.delete(Authorization)
