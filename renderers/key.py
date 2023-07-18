@@ -10,7 +10,7 @@ class Key(pydantic.BaseModel):
 class KeyWithOwner(Key):
     owner: BaseUser
 
-router = APIRouter(prefix="/key", tags=["key"])
+router = APIRouter(prefix="/api/key", tags=["key"])
 @router.post("/", response_model=KeyWithOwner)
 async def create_key(key: Key, user = Depends(loggedIn)):
     if DBKey.select().where(DBKey.name == key.name, DBKey.owner == user).exists():

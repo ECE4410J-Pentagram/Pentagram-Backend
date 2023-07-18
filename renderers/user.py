@@ -14,7 +14,7 @@ class LoginUser(BaseUser):
 class TokenResponse(pydantic.BaseModel):
     Authorization: str
 
-router = APIRouter(prefix="/user", tags=["user"])
+router = APIRouter(prefix="/api/user", tags=["user"])
 
 @router.post("/", response_model=BaseUser)
 async def create_user(user: RegisterUser):
@@ -29,7 +29,7 @@ async def create_user(user: RegisterUser):
 async def get_me(user: User = Depends(loggedIn)):
     return BaseUser(username=user.username)
 
-loginRouter = APIRouter(prefix="/login", tags=["login"])
+loginRouter = APIRouter(prefix="/api/login", tags=["login"])
 @loginRouter.post("/", response_model=TokenResponse)
 async def login(user: LoginUser):
     prev_user = User.get_or_none(User.username == user.username)
@@ -40,7 +40,7 @@ async def login(user: LoginUser):
         raise HTTPException(status_code=400, detail="Password is incorrect")
     return TokenResponse(Authorization=createToken(BaseUser(username=prev_user.username)))
 
-logoutRouter = APIRouter(prefix="/logout", tags=["logout"])
+logoutRouter = APIRouter(prefix="/api/logout", tags=["logout"])
 @logoutRouter.post("/")
 async def logout(Authorization: str = Header(...)):
     logout_func(Authorization)
