@@ -33,7 +33,7 @@ def loggedIn(Authorization: str = Header(...)):
     user = User.get_or_none(username == username)
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
-    return BaseUser(username=user.username)
+    return user
 
 def logout(Authorization: str = Header(...)):
     r.delete(Authorization)

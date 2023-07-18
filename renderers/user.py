@@ -26,8 +26,8 @@ async def create_user(user: RegisterUser):
     return BaseUser(username=new_user.username)
     
 @router.get("/", response_model=BaseUser)
-async def get_me(user: BaseUser = Depends(loggedIn)):
-    return user
+async def get_me(user: User = Depends(loggedIn)):
+    return BaseUser(username=user.username)
 
 loginRouter = APIRouter(prefix="/login", tags=["login"])
 @loginRouter.post("/", response_model=TokenResponse)
