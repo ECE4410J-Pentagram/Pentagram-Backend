@@ -4,4 +4,7 @@ from .User import User
 
 class Device(BaseModel):
     device_id = CharField(max_length=1024)
-    owner = ForeignKeyField(User, backref='keys')
+
+class Owener_Device_Relationship(BaseModel):
+    device = ForeignKeyField(Device, backref='devices')
+    user = ForeignKeyField(User, backref='users')

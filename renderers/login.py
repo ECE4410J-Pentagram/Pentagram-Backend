@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from utils.login import BaseUser, createToken
+from utils.models import BaseUser
+from utils.login import createToken
 import pydantic
 from DBModel.User import User, check_password
 
