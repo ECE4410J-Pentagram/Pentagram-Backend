@@ -4,7 +4,6 @@ class BaseUser(pydantic.BaseModel):
 
 class BaseDevice(pydantic.BaseModel):
     name: str = pydantic.Field(..., min_length=1, max_length=1024)
-    key: str = pydantic.Field(..., min_length=1, max_length=1024)
 
 class Role(pydantic.BaseModel):
     user: BaseUser
