@@ -3,7 +3,8 @@ from .db import BaseModel
 from .User import User
 
 class Device(BaseModel):
-    device_id = CharField(max_length=1024)
+    name = CharField(max_length=1024)
+    key = CharField(max_length=1024)
 
 class Owener_Device_Relationship(BaseModel):
     device = ForeignKeyField(Device, backref='devices')

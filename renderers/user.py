@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Depends, Header
 from DBModel.User import User, hash_password, check_password
-from utils.models import BaseUser
+from utils.models import BaseUser, BaseDevice, Role
 from utils.login import loggedIn, createToken
 from utils.login import logout as logout_func
 import pydantic

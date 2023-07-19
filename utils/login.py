@@ -9,8 +9,8 @@ import redis
 
 r = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
-def random_token():
-    return secrets.token_urlsafe(32)
+def random_token(length = 32):
+    return secrets.token_urlsafe(length)
 
 class TokenPayload(Role):
     login_time: float
