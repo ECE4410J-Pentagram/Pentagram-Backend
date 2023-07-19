@@ -32,11 +32,15 @@ async def login(role: LoginRole):
 
     if device.key is None:
         device.key = random_token()
+        test_db_device = Device.get_or_none(Device.name == device.name)
+        if test_db_device is not None:
+            raise HTTPException(status_code=400, detail="Device name already exists")
         new_db_device = Device.create(name=device.name, key=device.key)
         Owener_Device_Relationship.create(device=new_db_device, user=db_user)
     
     db_device = select_device_by_user_name(db_user, device.name)
-    print(db_device)
+    if db_device is None:
+        raise HTTPException(status_code=400, detail="Device does not exist")
 
     output_user = BaseUser(username=db_user.username)
     output_device = BaseDevice(name=db_device.name, key=db_device.key)

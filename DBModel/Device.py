@@ -11,5 +11,8 @@ class Owener_Device_Relationship(BaseModel):
     user = ForeignKeyField(User, backref='users')
 
 
+def select_all_devices_by_user(user: User):
+    return Device.select(Device, Owener_Device_Relationship).join(Owener_Device_Relationship).where(Owener_Device_Relationship.user == user)
+
 def select_device_by_user_name(user: User, device_name: str):
-    return Device.select(Device, Owener_Device_Relationship).join(Owener_Device_Relationship).where(Device.name == device_name, Owener_Device_Relationship.user == user).first()
+    return select_all_devices_by_user(user).where(Device.name == device_name).first()
