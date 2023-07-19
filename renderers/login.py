@@ -8,8 +8,7 @@ from DBModel.Device import Device, Owener_Device_Relationship, select_device_by_
 class LoginUser(BaseUser):
     password: str
 
-class LoginDevice(pydantic.BaseModel):
-    name: str
+class LoginDevice(BaseDevice):
     key: str | None
 
 class LoginRole(pydantic.BaseModel):
