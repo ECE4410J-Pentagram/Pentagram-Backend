@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
-from utils.login import BaseUser, loggedIn
+from utils.login import loggedIn
+from utils.models import BaseUser
 import pydantic
 from DBModel.Key import Key as DBKey
 
