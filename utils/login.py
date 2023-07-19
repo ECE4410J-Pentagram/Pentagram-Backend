@@ -4,7 +4,7 @@ from utils.models import Role
 from fastapi import Header, HTTPException
 from datetime import datetime
 from DBModel.User import User
-from DBModel.Device import select_device_by_user_name
+from DBModel.Device import select_device_by_user_name, Device
 import redis
 
 r = redis.Redis(host='localhost', port=6379, decode_responses=True)
@@ -25,7 +25,7 @@ def createToken(role: Role) -> str:
     r.expire(token, 60 * 60 * 24 * 30)
     return token
 
-def loggedIn(Authorization: str = Header(...)):
+def loggedIn(Authorization: str = Header(...)) -> tuple[User, Device]:
     payload = r.get(Authorization)
     if payload is None:
         raise HTTPException(status_code=401, detail="Invalid token")
