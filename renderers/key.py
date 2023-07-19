@@ -3,6 +3,7 @@ from utils.login import loggedIn
 from utils.models import BaseUser
 import pydantic
 from DBModel.Key import Key as DBKey
+from utils import message
 
 class Key(pydantic.BaseModel):
     name: str = pydantic.Field(max_length=1024)
@@ -32,13 +33,13 @@ async def get_key(key_name: str, user = Depends(loggedIn)):
         raise HTTPException(status_code=404, detail="Key not found")
     return KeyWithOwner(name=res.name, pk=res.pk, owner=BaseUser(username=user.username))
 
-@router.delete("/{key_name}")
+@router.delete("/{key_name}", response_model=message.Message)
 async def delete_key(key_name: str, user = Depends(loggedIn)):
     res = DBKey.get_or_none(DBKey.name == key_name, DBKey.owner == user)
     if res is None:
         raise HTTPException(status_code=404, detail="Key not found")
     res.delete_instance()
-    return {"message": "Deleted successfully"}
+    return message.Message("Key deleted")
 
 @router.put("/{key_name}", response_model=KeyWithOwner)
 async def update_key(key_name: str, key: Key, user = Depends(loggedIn)):
