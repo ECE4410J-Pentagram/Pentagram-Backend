@@ -3,7 +3,7 @@ from utils.models import BaseUser, BaseDevice, Role
 from utils.login import createToken, random_token
 import pydantic
 from DBModel.User import User, check_password
-from DBModel.Device import Device, Owener_Device_Relationship
+from DBModel.Device import Device, Owener_Device_Relationship, select_device_by_user_name
 
 class LoginUser(BaseUser):
     password: str
@@ -35,7 +35,7 @@ async def login(role: LoginRole):
         new_db_device = Device.create(name=device.name, key=device.key)
         Owener_Device_Relationship.create(device=new_db_device, user=db_user)
     
-    db_device = Device.select(Device, Owener_Device_Relationship).join(Owener_Device_Relationship).where(Device.name == device.name, Device.key == device.key, Owener_Device_Relationship.user == db_user).first()
+    db_device = select_device_by_user_name(db_user, device.name)
     print(db_device)
 
     output_user = BaseUser(username=db_user.username)

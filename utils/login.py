@@ -4,7 +4,7 @@ from utils.models import Role
 from fastapi import Header, HTTPException
 from datetime import datetime
 from DBModel.User import User
-from DBModel.Device import Device
+from DBModel.Device import select_device_by_user_name
 import redis
 
 r = redis.Redis(host='localhost', port=6379, decode_responses=True)
@@ -32,15 +32,16 @@ def loggedIn(Authorization: str = Header(...)):
     payload = TokenPayload.parse_raw(payload)
     
     username = payload.user.username
-    device_id = payload.device.device_id
-    user = User.get_or_none(username == username)
-    if user is None:
+    device_name = payload.device.name
+    db_user = User.get_or_none(username == username)
+
+    if db_user is None:
         raise HTTPException(status_code=401, detail="User not found")
 
-    device = user.keys.where(Device.device_id == device_id)
-    if not device.exists():
+    db_device = select_device_by_user_name(db_user, device_name)
+    if db_device is None:
         raise HTTPException(status_code=401, detail="Device not found")
-    return user, device
+    return db_user, db_device
 
 def logout(Authorization: str = Header(...)):
     r.delete(Authorization)

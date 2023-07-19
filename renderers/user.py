@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Depends, Header
 from DBModel.User import User, hash_password, check_password
+from DBModel.Device import Device
 from utils.models import BaseUser, BaseDevice, Role
 from utils.login import loggedIn, createToken
 from utils.login import logout as logout_func
@@ -20,11 +21,12 @@ async def create_user(user: RegisterUser):
     return BaseUser(username=new_user.username)
     
 @router.get("/", response_model=BaseUser)
-async def get_me(user: User = Depends(loggedIn)):
+async def get_me(role: tuple[User, Device] = Depends(loggedIn)):
+    user, _ = role
     return BaseUser(username=user.username)
 
 logoutRouter = APIRouter(prefix="/api/logout", tags=["logout"])
 @logoutRouter.post("/")
-async def logout(Authorization: str = Header(...)):
+async def logout(Authorization: str = Header(...), _: tuple[User, Device] = Depends(loggedIn)):
     logout_func(Authorization)
     return {"message": "Logged out successfully"}
