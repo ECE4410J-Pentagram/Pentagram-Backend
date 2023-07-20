@@ -25,8 +25,3 @@ async def get_me(role: tuple[User, Device] = Depends(loggedIn)):
     user, _ = role
     return BaseUser(username=user.username)
 
-logoutRouter = APIRouter(prefix="/api/logout", tags=["logout"])
-@logoutRouter.post("/")
-async def logout(Authorization: str = Header(...), _: tuple[User, Device] = Depends(loggedIn)):
-    logout_func(Authorization)
-    return {"message": "Logged out successfully"}

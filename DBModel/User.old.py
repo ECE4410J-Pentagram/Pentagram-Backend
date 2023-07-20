@@ -37,10 +37,3 @@ class User(BaseModel):
         
 
 
-def hash_password(password):
-    salt = bcrypt.gensalt().decode()
-    hashed_password = bcrypt.hashpw(password.encode(), salt.encode()).decode()
-    return hashed_password
-
-def check_password(password, hashed_password):
-    return bcrypt.checkpw(password.encode(), hashed_password.encode())
