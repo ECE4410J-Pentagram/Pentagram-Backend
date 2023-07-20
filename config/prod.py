@@ -6,3 +6,4 @@ class Config:
     PDB_PASS = environ.get("POSTGRES_PASSWORD")
     PDB_HOST = environ.get("POSTGRES_HOST")
     PDB_PORT = environ.get("POSTGRES_PORT")
+    REDIS_HOST = environ.get("REDIS_HOST")

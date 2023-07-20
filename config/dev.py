@@ -4,3 +4,4 @@ class Config:
     PDB_PASS = "cryptex"
     PDB_HOST = "localhost"
     PDB_PORT = 5432
+    REDIS_HOST = "localhost"

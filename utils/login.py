@@ -4,9 +4,10 @@ from utils.models import BaseDevice, LoginDevice
 from fastapi import Header, HTTPException
 from datetime import datetime
 from DBModel.Device import Device
+from config import config
 import redis
 
-r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+r = redis.Redis(host=config.REDIS_HOST, port=6379, decode_responses=True)
 
 def random_token(length = 32):
     return secrets.token_urlsafe(length)
