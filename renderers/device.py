@@ -1,27 +1,29 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
 from DBModel.Device import Device 
-from utils.models import BaseDevice
+from utils.models import BaseDevice, InfoDevice
 from utils.login import loggedIn, logout
+from utils.device import infodevice
 from .login import LoginDevice
 
 router = APIRouter(prefix="/api/device", tags=["device"])
-
-class InfoDevice(BaseDevice):
-    pass
 
 
 
 @router.get("/", response_model=InfoDevice)
 async def get_device(device: Device = Depends(loggedIn)):
-    return InfoDevice(name=device.name)
+    return infodevice(device.key)
 
 @router.post("/", response_model=InfoDevice)
 async def create_device(device: LoginDevice):
     """
     Create a device. 
     """
-    device = Device.create(name=device.name, key=device.key)
-    return InfoDevice(name=device.name)
+    # Verify if the device already exists
+    db_device = Device.get_or_none(key=device.key)
+    if db_device:
+        raise HTTPException(status_code=400, detail="Device already exists")
+    db_device = Device.create(name=device.name, key=device.key)
+    return infodevice(device.key)
 
 @router.put("/", response_model=InfoDevice)
 async def update_device(device: BaseDevice, credential: Device = Depends(loggedIn)):
@@ -30,7 +32,7 @@ async def update_device(device: BaseDevice, credential: Device = Depends(loggedI
     """
     credential.name = device.name
     credential.save()
-    return InfoDevice(name=device.name)
+    return infodevice(credential.key)
 
 
 @router.delete("/", response_model=InfoDevice)
@@ -40,4 +42,4 @@ async def delete_device(device: Device = Depends(logout)):
     Note you probably want to log out if you delete the device you are currently using.
     """
     device.delete_instance()
-    return InfoDevice(name=device.name)
+    return infodevice(device.key)

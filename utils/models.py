@@ -10,3 +10,9 @@ class LoginHeader(pydantic.BaseModel):
 
 class BaseKey(pydantic.BaseModel):
     name: str = pydantic.Field(min_length=10, max_length=1024)
+
+class Key(BaseKey):
+    pk: str = pydantic.Field(max_length=2048)
+
+class InfoDevice(BaseDevice):
+    keys: list[Key]

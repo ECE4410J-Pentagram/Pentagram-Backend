@@ -45,7 +45,7 @@ async def send_invitation(invitiation: PendingInvitation, device: Device = Depen
         raise HTTPException(status_code=400, detail="Relationship already exists")
 
     # Create the relationship
-    Relationship.create(from_key=key, to_device=to_device)
+    Relationship.create(from_key=key, from_device=device, to_device=to_device)
 
     return PendingInvitation(from_key=BaseKey(name=key.name), to_device=BaseDevice(name=to_device.name))
 
@@ -101,6 +101,7 @@ async def accept_invitation(accept: AcceptInvitationQuery, device: Device = Depe
         raise HTTPException(status_code=400, detail="Relationship already exists")
     # Accept the relationship
     relationship.pending = False
+    relationship.to_key = to_key
     relationship.save()
 
     return PendingInvitation(from_key=BaseKey(name = relationship.from_key.name), to_device=BaseDevice(name = relationship.to_device.name))
