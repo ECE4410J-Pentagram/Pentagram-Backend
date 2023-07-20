@@ -3,7 +3,7 @@ version: '3.7'
 services:
   pentagram:
     image: ghcr.io/ece4410j-pentagram/pentagram-backend
-    env-file:
+    env_file:
       - secret.env
     ports:
       - 18000:8000
@@ -16,11 +16,7 @@ services:
   db:
     image: postgres
     restart: always
-    env-file:
+    env_file:
       - secret.env
-    environment:
-      POSTGRES_USER: cryptex
-      POSTGRES_PASSWORD: cryptex
-      POSTGRES_DB: cryptex
     ports:
       - '5432:5432'
