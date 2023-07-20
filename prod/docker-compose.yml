@@ -10,13 +10,9 @@ services:
   redis:
     image: redis:7.2-rc2
     restart: always
-    ports:
-      - 6379:6379
     command: redis-server
   db:
     image: postgres
     restart: always
     env_file:
       - secret.env
-    ports:
-      - '5432:5432'
