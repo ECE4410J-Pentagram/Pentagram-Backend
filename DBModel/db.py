@@ -6,6 +6,7 @@ psql_db = PostgresqlDatabase(
     user=config.PDB_USER,
     password=config.PDB_PASS,
     host=config.PDB_HOST,
+    port=config.PDB_PORT
 )
 
 class BaseModel(Model):

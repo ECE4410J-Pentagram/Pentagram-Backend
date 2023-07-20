@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  pentagram:
+    image: ghcr.io/ece4410j-pentagram/pentagram-backend
+    env-file:
+      - secret.env
+    ports:
+      - 18000:8000
+  redis:
+    image: redis:7.2-rc2
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server
+  db:
+    image: postgres
+    restart: always
+    env-file:
+      - secret.env
+    environment:
+      POSTGRES_USER: cryptex
+      POSTGRES_PASSWORD: cryptex
+      POSTGRES_DB: cryptex
+    ports:
+      - '5432:5432'
