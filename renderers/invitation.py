@@ -87,6 +87,18 @@ async def accept_invitation(accept: AcceptInvitationQuery, device: Device = Depe
     relationship = Relationship.get_by_id(id)
     if relationship.to_device != device:
         raise HTTPException(status_code=400, detail="Relationship does not exist")
+    from_device = relationship.from_key.owner
+    from_key = relationship.from_key
+    to_device = relationship.to_device
+    to_key = shared_db_key
+
+    # Verify that no such relationship already exists
+    relationship = Relationship.get_or_none(from_key=from_key, to_device=to_device)
+    if relationship is not None:
+        raise HTTPException(status_code=400, detail="Relationship already exists")
+    relationship = Relationship.get_or_none(from_key=to_key, to_device=from_device)
+    if relationship is not None:
+        raise HTTPException(status_code=400, detail="Relationship already exists")
     # Accept the relationship
     relationship.pending = False
     relationship.save()
