@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from utils.models import BaseDevice
+from utils.models import BaseKey
 from utils.login import loggedIn
 import pydantic
 from DBModel.Key import Key as DBKey
 from DBModel.Device import Device
 
-class Key(pydantic.BaseModel):
-    name: str = pydantic.Field(min_length=10, max_length=1024)
+class Key(BaseKey):
     pk: str = pydantic.Field(max_length=2048)
 
 class KeyWithOwner(Key):

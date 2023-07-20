@@ -7,3 +7,6 @@ class LoginDevice(BaseDevice):
 
 class LoginHeader(pydantic.BaseModel):
     Authorization: str = pydantic.Field(..., min_length=1)
+
+class BaseKey(pydantic.BaseModel):
+    name: str = pydantic.Field(min_length=10, max_length=1024)
