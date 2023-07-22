@@ -5,3 +5,4 @@ python_bcrypt==0.3.2
 redis==4.4.2
 uvicorn==0.15.0
 psycopg2==2.9.6
+py_bcrypt==0.4
