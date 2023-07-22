@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
 from DBModel.Device import Device 
 from utils.models import BaseDevice, InfoDevice
-from utils.login import loggedIn, logout
+from utils.login import loggedIn, logout, create_key_hash
 from utils.device import infodevice
 from .login import LoginDevice
 
@@ -22,7 +22,7 @@ async def create_device(device: LoginDevice):
     db_device = Device.get_or_none(name=device.name)
     if db_device:
         raise HTTPException(status_code=400, detail="Device already exists")
-    db_device = Device.create(name=device.name, key=device.key)
+    db_device = Device.create(name=device.name, key_hash=create_key_hash(device.key))
     return infodevice(device.name)
 
 @router.put("/", response_model=InfoDevice)

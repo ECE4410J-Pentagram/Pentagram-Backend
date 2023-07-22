@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from utils.models import BaseDevice, LoginDevice
-from utils.login import createToken, random_token
+from utils.login import createToken, check_key
 import pydantic
 from DBModel.Device import Device
 
@@ -10,8 +10,10 @@ class TokenResponse(pydantic.BaseModel):
 loginRouter = APIRouter(prefix="/api/login", tags=["login"])
 @loginRouter.post("/", response_model=TokenResponse)
 async def login(device: LoginDevice):
-    db_device = Device.get_or_none(Device.key == device.key, Device.name == device.name)
+    db_device = Device.get_or_none(Device.name == device.name)
     if db_device == None:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    if not check_key(device.key, db_device.key_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return TokenResponse(Authorization=createToken(device))
 

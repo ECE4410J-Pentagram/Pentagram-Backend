@@ -6,11 +6,20 @@ from datetime import datetime
 from DBModel.Device import Device
 from config import config
 import redis
+from bcrypt import checkpw, hashpw, gensalt
 
 r = redis.Redis(host=config.REDIS_HOST, port=6379, decode_responses=True)
 
 def random_token(length = 32):
     return secrets.token_urlsafe(length)
+
+def check_key(login_key: str, db_key: str):
+    return checkpw(login_key.encode(), db_key.encode())
+
+def create_key_hash(login_key: str):
+    salt = gensalt()
+    return hashpw(login_key.encode(), salt.encode())
+
 
 class TokenPayload(LoginDevice):
     login_time: float
@@ -31,7 +40,7 @@ def loggedIn(Authorization: str = Header(...)) -> Device:
         raise HTTPException(status_code=401, detail="Invalid token")
     payload = TokenPayload.parse_raw(payload)
     
-    db_device = Device.get_or_none(Device.name == payload.name, Device.key == payload.key)
+    db_device = Device.get_or_none(Device.name == payload.name)
     if db_device is None:
         raise HTTPException(status_code=401, detail="Device not found")
     return db_device

@@ -4,5 +4,5 @@ import bcrypt
 
 class Device(BaseModel):
     name = CharField(max_length=1024, unique=True)
-    key = CharField(max_length=1024)
+    key_hash = CharField(max_length=1024)
 
