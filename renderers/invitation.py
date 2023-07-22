@@ -5,6 +5,7 @@ from DBModel.Key import Key
 from DBModel.Device import Device
 from DBModel.Relationship import Relationship
 import pydantic
+from typing import List
 
 class PendingInvitation(pydantic.BaseModel):
     from_key: BaseKey
@@ -50,7 +51,7 @@ async def send_invitation(invitiation: PendingInvitation, device: Device = Depen
     return PendingInvitationResponse(from_key=BaseKey(name=key.name), to_device=BaseDevice(name=to_device.name), id = relationship.id)
 
 
-@send_router.get("/", response_model=list[PendingInvitationResponse])
+@send_router.get("/", response_model=List[PendingInvitationResponse])
 async def get_sent_invitations(device: Device = Depends(loggedIn)):
     """
     Get all sent invitations.
@@ -62,7 +63,7 @@ async def get_sent_invitations(device: Device = Depends(loggedIn)):
 
 
 receive_router = APIRouter(prefix="/api/invitation/received", tags=["receiving invitation"])
-@receive_router.get("/", response_model=list[PendingInvitationResponse])
+@receive_router.get("/", response_model=List[PendingInvitationResponse])
 async def get_received_invitations(device: Device = Depends(loggedIn)):
     """
     Get all received invitations.

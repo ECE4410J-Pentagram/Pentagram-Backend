@@ -5,6 +5,7 @@ from DBModel.Relationship import Relationship
 from DBModel.Key import Key
 from utils.models import BaseDevice, InfoDevice, KeyWithOwner
 from utils.device import infodevice
+from typing import List
 
 router = APIRouter(prefix="/api/friend", tags=["friend"])
 
@@ -20,7 +21,7 @@ def query_friends(device: Device):
 
     return from_key + to_key
 
-@router.get("/", response_model=list[KeyWithOwner])
+@router.get("/", response_model=List[KeyWithOwner])
 async def get_friends(device = Depends(loggedIn)):
     db_friends = query_friends(device)
     print(db_friends)
