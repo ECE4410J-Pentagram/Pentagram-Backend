@@ -45,9 +45,9 @@ async def send_invitation(invitiation: PendingInvitation, device: Device = Depen
         raise HTTPException(status_code=400, detail="Relationship already exists")
 
     # Create the relationship
-    Relationship.create(from_key=key, from_device=device, to_device=to_device)
+    relationship = Relationship.create(from_key=key, from_device=device, to_device=to_device)
 
-    return PendingInvitation(from_key=BaseKey(name=key.name), to_device=BaseDevice(name=to_device.name))
+    return PendingInvitationResponse(from_key=BaseKey(name=key.name), to_device=BaseDevice(name=to_device.name), id = relationship.id)
 
 
 @send_router.get("/", response_model=list[PendingInvitationResponse])
@@ -84,7 +84,10 @@ async def accept_invitation(accept: AcceptInvitationQuery, device: Device = Depe
         raise HTTPException(status_code=404, detail="Key not found")
 
     # Verify that the relationship does not already exist
-    relationship = Relationship.get_by_id(id)
+    try:
+        relationship = Relationship.get_by_id(id)
+    except Exception as _:
+        raise HTTPException(status_code=404, detail="Relationship not found")
     if relationship.to_device != device:
         raise HTTPException(status_code=400, detail="Relationship does not exist")
     from_device = relationship.from_key.owner
@@ -93,13 +96,14 @@ async def accept_invitation(accept: AcceptInvitationQuery, device: Device = Depe
     to_key = shared_db_key
 
     # Verify that no such relationship already exists
-    relationship = Relationship.get_or_none(from_key=from_key, to_device=to_device)
+    relationship = Relationship.get_or_none(from_key=from_key, to_device=to_device, pending = False)
     if relationship is not None:
         raise HTTPException(status_code=400, detail="Relationship already exists")
-    relationship = Relationship.get_or_none(from_key=to_key, to_device=from_device)
+    relationship = Relationship.get_or_none(from_key=to_key, to_device=from_device, pending = False)
     if relationship is not None:
         raise HTTPException(status_code=400, detail="Relationship already exists")
     # Accept the relationship
+    relationship = Relationship.get_by_id(id)
     relationship.pending = False
     relationship.to_key = to_key
     relationship.save()

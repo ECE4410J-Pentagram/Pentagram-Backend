@@ -31,7 +31,7 @@ def loggedIn(Authorization: str = Header(...)) -> Device:
         raise HTTPException(status_code=401, detail="Invalid token")
     payload = TokenPayload.parse_raw(payload)
     
-    db_device = Device.get_or_none(Device.key == payload.key)
+    db_device = Device.get_or_none(Device.name == payload.name, Device.key == payload.key)
     if db_device is None:
         raise HTTPException(status_code=401, detail="Device not found")
     return db_device

@@ -3,6 +3,6 @@ from .db import BaseModel
 import bcrypt
 
 class Device(BaseModel):
-    name = CharField(max_length=1024)
-    key = CharField(max_length=1024, unique=True)
+    name = CharField(max_length=1024, unique=True)
+    key = CharField(max_length=1024)
 

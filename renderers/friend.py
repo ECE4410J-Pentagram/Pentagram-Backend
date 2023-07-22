@@ -2,28 +2,27 @@ from fastapi import APIRouter, Depends, HTTPException, Header
 from utils.login import loggedIn
 from DBModel.Device import Device
 from DBModel.Relationship import Relationship
-from utils.models import BaseDevice, InfoDevice
+from DBModel.Key import Key
+from utils.models import BaseDevice, InfoDevice, KeyWithOwner
 from utils.device import infodevice
 
 router = APIRouter(prefix="/api/friend", tags=["friend"])
 
+def get_Baseowner(owner):
+    return BaseDevice(name = owner.name)
+
 def query_friends(device: Device):
-    from_friends = Relationship.select().join(Device, on=(Device.id==Relationship.from_key.owner)).where(Device.id == device.id, Relationship.pending == False)
+    from_key = Key.select().join(Relationship, on = (Relationship.to_key == Key.id)).where(Relationship.from_device == device)
+    from_key = [KeyWithOwner(name = key.name, pk = key.pk, owner = get_Baseowner(key.owner)) for key in from_key]
 
-    to_friends = Relationship.select().join(Device, on=(Device.id==Relationship.to_device)).where(Device.id == device.id, Relationship.pending == False)
+    to_key = Key.select().join(Relationship, on = (Relationship.from_key == Key.id)).where(Relationship.to_device == device)
+    to_key = [KeyWithOwner(name = key.name, pk = key.pk, owner = get_Baseowner(key.owner)) for key in to_key]
 
-    friends = {}
-    for friend in from_friends:
-        friends[friend.to_device.key] = friend.to_device
+    return from_key + to_key
 
-    for friend in to_friends:
-        friends[friend.from_key.key.owner.key] = friend.from_key.owner
-
-    friends = list(friends.values())
-    return friends
-
-@router.get("/", response_model=list[InfoDevice])
+@router.get("/", response_model=list[KeyWithOwner])
 async def get_friends(device = Depends(loggedIn)):
     db_friends = query_friends(device)
-    friends = [infodevice(key = friend.key) for friend in db_friends]
-    return friends
+    print(db_friends)
+    print(type(db_friends))
+    return db_friends

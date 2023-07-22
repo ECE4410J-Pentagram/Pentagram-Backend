@@ -16,3 +16,7 @@ class Key(BaseKey):
 
 class InfoDevice(BaseDevice):
     keys: list[Key]
+
+class KeyWithOwner(Key):
+    owner: BaseDevice
+

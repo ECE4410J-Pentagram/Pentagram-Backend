@@ -1,13 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from utils.models import BaseDevice
-from utils.models import Key
+from utils.models import Key, KeyWithOwner
 from utils.login import loggedIn
-import pydantic
 from DBModel.Key import Key as DBKey
 from DBModel.Device import Device
-
-class KeyWithOwner(Key):
-    owner: BaseDevice
 
 router = APIRouter(prefix="/api/key", tags=["key"])
 @router.post("/", response_model=KeyWithOwner)
