@@ -1,20 +1,18 @@
-# Pentagram
-## Getting Started
+# Getting Started
 
-The entire project consists of two parts: frontend and backend. 
 For the backend, the system is going to be designed with:
 - [Python FastAPI](https://fastapi.tiangolo.com/): Web Framework.
 - [Pydantic](https://docs.pydantic.dev/latest/): API datatype validation.
 - [Peewee](https://docs.peewee-orm.com/en/latest/): Database ORM.
 - [Hashlib](https://docs.python.org/3/library/hashlib.html): Cryptographic hashing library for user management.
 
-## Model and Engine
+# Model and Engine
 
-Storymap:
+## Storymap:
 
 ![](https://cryptexstatics.patrickli.one/storymap.png)
 
-Backend Architecture:
+## Backend Architecture:
 
 ![](https://cryptexstatics.patrickli.one/Backend.drawio.png)
 
@@ -23,7 +21,7 @@ Backend Architecture:
 - Step 3: Information sent through 3rd party platform such as WeChat.
 - Step 4: The receiver decrypts the information with his private key.
 
-## APIs and Controller
+# APIs and Controller
 
 API Designs:
 
