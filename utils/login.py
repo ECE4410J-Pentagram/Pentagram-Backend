@@ -1,12 +1,13 @@
 """Login and token management"""
 import secrets
 from utils.models import BaseDevice, LoginDevice
-from fastapi import Header, HTTPException
+from fastapi import Header, HTTPException, Depends
 from datetime import datetime
 from DBModel.Device import Device
 from config import config
 import redis
 from bcrypt import checkpw, hashpw, gensalt
+from utils.peewee import get_db
 
 r = redis.Redis(host=config.REDIS_HOST, port=6379, decode_responses=True)
 
@@ -34,7 +35,7 @@ def createToken(device: LoginDevice) -> str:
     r.expire(token, 60 * 60 * 24 * 30)
     return token
 
-def loggedIn(Authorization: str = Header(...)) -> Device:
+def loggedIn(Authorization: str = Header(...), db = Depends(get_db)) -> Device:
     payload = r.get(Authorization)
     if payload is None:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -45,7 +46,7 @@ def loggedIn(Authorization: str = Header(...)) -> Device:
         raise HTTPException(status_code=401, detail="Device not found")
     return db_device
 
-def logout(Authorization: str = Header(...)):
+def logout(Authorization: str = Header(...), db = Depends(get_db)):
     res = loggedIn(Authorization)
     r.delete(Authorization)
     return res

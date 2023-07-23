@@ -4,6 +4,7 @@ from utils.models import BaseDevice, InfoDevice
 from utils.login import loggedIn, logout, create_key_hash
 from utils.device import infodevice
 from .login import LoginDevice
+from utils.peewee import get_db
 
 router = APIRouter(prefix="/api/device", tags=["device"])
 
@@ -14,7 +15,7 @@ async def get_device(device: Device = Depends(loggedIn)):
     return infodevice(device.name)
 
 @router.post("/", response_model=InfoDevice)
-async def create_device(device: LoginDevice):
+async def create_device(device: LoginDevice, db = Depends(get_db)):
     """
     Create a device. 
     """
