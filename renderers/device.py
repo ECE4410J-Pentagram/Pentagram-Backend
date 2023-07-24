@@ -20,11 +20,15 @@ async def create_device(device: LoginDevice, db = Depends(get_db)):
     """
     Create a device. 
     """
-    # Verify if the device already exists
-    db_device = Device.get_or_none(name=device.name)
-    if db_device:
-        raise HTTPException(status_code=400, detail="Device already exists")
-    db_device = Device.create(name=device.name, key_hash=create_key_hash(device.key))
+
+    @psql_db.atomic()
+    def _create_device():
+        # Verify if the device already exists
+        db_device = Device.get_or_none(name=device.name)
+        if db_device:
+            raise HTTPException(status_code=400, detail="Device already exists")
+        db_device = Device.create(name=device.name, key_hash=create_key_hash(device.key))
+    _create_device()
     return infodevice(device.name)
 
 @router.put("/", response_model=InfoDevice)
