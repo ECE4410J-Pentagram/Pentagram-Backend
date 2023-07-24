@@ -28,7 +28,6 @@ class RejectInvitationQuery(pydantic.BaseModel):
 send_router = APIRouter(prefix="/api/invitation/sent", tags=["sending invitation"])
 
 @send_router.post("/", response_model=PendingInvitationResponse)
-@psql_db.atomic()
 async def send_invitation(invitiation: PendingInvitation, device: Device = Depends(loggedIn)):
     """
     Send an invitation to another device.
@@ -97,7 +96,6 @@ async def get_received_invitations(device: Device = Depends(loggedIn)):
     return res
 
 @receive_router.post("/accept")
-@psql_db.atomic()
 async def accept_invitation(accept: AcceptInvitationQuery, device: Device = Depends(loggedIn)):
     """
     Accept an invitation.
@@ -137,7 +135,6 @@ async def accept_invitation(accept: AcceptInvitationQuery, device: Device = Depe
     return PendingInvitation(from_key=BaseKey(name = relationship.from_key.name), to_device=BaseDevice(name = relationship.to_device.name))
 
 @receive_router.post("/reject")
-@psql_db.atomic()
 async def reject_invitation(reject: RejectInvitationQuery, device: Device = Depends(loggedIn)):
     """
     Reject an invitation.
