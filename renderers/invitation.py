@@ -6,6 +6,7 @@ from DBModel.Device import Device
 from DBModel.Relationship import Relationship
 import pydantic
 from typing import List
+from DBModel.db import psql_db
 
 class PendingInvitation(pydantic.BaseModel):
     from_key: BaseKey
@@ -14,6 +15,7 @@ class PendingInvitation(pydantic.BaseModel):
 class PendingInvitationResponse(PendingInvitation):
     id: int
     from_key: BaseKey
+    from_device: BaseDevice
 
 class AcceptInvitationQuery(pydantic.BaseModel):
     id: int
@@ -26,6 +28,7 @@ class RejectInvitationQuery(pydantic.BaseModel):
 send_router = APIRouter(prefix="/api/invitation/sent", tags=["sending invitation"])
 
 @send_router.post("/", response_model=PendingInvitationResponse)
+@psql_db.atomic()
 async def send_invitation(invitiation: PendingInvitation, device: Device = Depends(loggedIn)):
     """
     Send an invitation to another device.
@@ -48,7 +51,12 @@ async def send_invitation(invitiation: PendingInvitation, device: Device = Depen
     # Create the relationship
     relationship = Relationship.create(from_key=key, from_device=device, to_device=to_device)
 
-    return PendingInvitationResponse(from_key=BaseKey(name=key.name), to_device=BaseDevice(name=to_device.name), id = relationship.id)
+    return PendingInvitationResponse(
+            from_key=BaseKey(name=key.name), 
+            to_device=BaseDevice(name=to_device.name), 
+            id = relationship.id, 
+            from_device=BaseDevice(name=device.name)
+            )
 
 
 @send_router.get("/", response_model=List[PendingInvitationResponse])
@@ -58,7 +66,15 @@ async def get_sent_invitations(device: Device = Depends(loggedIn)):
     """
     res = Relationship.select().join(Key, on=(Key.id==Relationship.from_key)).where(Key.owner == device, Relationship.pending == True)
     print(res)
-    res = [PendingInvitationResponse(id = relationship.id, from_key=BaseKey(name=relationship.from_key.name), to_device=BaseDevice(name=relationship.to_device.name)) for relationship in res]
+    res = [
+            PendingInvitationResponse(
+                id = relationship.id, 
+                from_key=BaseKey(name=relationship.from_key.name), 
+                to_device=BaseDevice(name=relationship.to_device.name),
+                from_device=BaseDevice(name=relationship.from_device.name)
+                ) 
+            for relationship in res
+            ]
     return res
 
 
@@ -69,10 +85,19 @@ async def get_received_invitations(device: Device = Depends(loggedIn)):
     Get all received invitations.
     """
     res = Relationship.select().where(Relationship.to_device == device, Relationship.pending == True)
-    res = [PendingInvitationResponse(id = relationship.id, from_key=BaseKey(name=relationship.from_key.name), to_device=BaseDevice(name=relationship.to_device.name)) for relationship in res]
+    res = [
+            PendingInvitationResponse(
+                id = relationship.id, 
+                from_key=BaseKey(name=relationship.from_key.name), 
+                to_device=BaseDevice(name=relationship.to_device.name),
+                from_device=BaseDevice(name=relationship.from_device.name)
+                ) 
+            for relationship in res
+            ]
     return res
 
 @receive_router.post("/accept")
+@psql_db.atomic()
 async def accept_invitation(accept: AcceptInvitationQuery, device: Device = Depends(loggedIn)):
     """
     Accept an invitation.
@@ -112,6 +137,7 @@ async def accept_invitation(accept: AcceptInvitationQuery, device: Device = Depe
     return PendingInvitation(from_key=BaseKey(name = relationship.from_key.name), to_device=BaseDevice(name = relationship.to_device.name))
 
 @receive_router.post("/reject")
+@psql_db.atomic()
 async def reject_invitation(reject: RejectInvitationQuery, device: Device = Depends(loggedIn)):
     """
     Reject an invitation.

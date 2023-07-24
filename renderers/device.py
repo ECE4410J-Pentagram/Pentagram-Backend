@@ -5,6 +5,7 @@ from utils.login import loggedIn, logout, create_key_hash
 from utils.device import infodevice
 from .login import LoginDevice
 from utils.peewee import get_db
+from DBModel.db import psql_db
 
 router = APIRouter(prefix="/api/device", tags=["device"])
 

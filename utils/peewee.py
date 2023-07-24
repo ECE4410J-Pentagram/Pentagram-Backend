@@ -7,7 +7,6 @@ async def reset_db_state():
 
 
 def get_db(db_state=Depends(reset_db_state)):
-    print("get_db")
     try:
         db.psql_db.connect()
         yield
