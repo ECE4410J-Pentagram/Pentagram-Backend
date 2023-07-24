@@ -43,7 +43,10 @@ async def send_invitation(invitiation: PendingInvitation, device: Device = Depen
         raise HTTPException(status_code=404, detail="Device not found")
 
     # Verify that the relationship does not already exist
-    relationship = Relationship.get_or_none(to_device=to_device, from_key=key)
+    relationship = Relationship.get_or_none(from_key=key, to_device=to_device)
+    if relationship is not None:
+        raise HTTPException(status_code=400, detail="Relationship already exists")
+    relationship = Relationship.get_or_none(from_device=to_device, to_key=key)
     if relationship is not None:
         raise HTTPException(status_code=400, detail="Relationship already exists")
 
