@@ -13,10 +13,10 @@ def get_Baseowner(owner):
     return BaseDevice(name = owner.name)
 
 def query_friends(device: Device):
-    from_key = Key.select().join(Relationship, on = (Relationship.to_key == Key.id)).where(Relationship.from_device == device)
+    from_key = Key.select().join(Relationship, on = (Relationship.to_key == Key.id)).where(Relationship.from_device == device, Relationship.pending == False)
     from_key = [KeyWithOwner(name = key.name, pk = key.pk, owner = get_Baseowner(key.owner)) for key in from_key]
 
-    to_key = Key.select().join(Relationship, on = (Relationship.from_key == Key.id)).where(Relationship.to_device == device)
+    to_key = Key.select().join(Relationship, on = (Relationship.from_key == Key.id)).where(Relationship.to_device == device, Relationship.pending == False)
     to_key = [KeyWithOwner(name = key.name, pk = key.pk, owner = get_Baseowner(key.owner)) for key in to_key]
 
     return from_key + to_key
@@ -39,9 +39,9 @@ async def delete_friend(friend_key: KeyWithOwner, device: Device = Depends(logge
         raise HTTPException(status_code=404, detail="Device not found")
 
     # Verify that the relationship exists
-    relationship = Relationship.get_or_none(from_device=device, to_device=friend_device, to_key=friend_key.name)
+    relationship = Relationship.get_or_none(from_device=device, to_device=friend_device, to_key=friend_key.name, pending = False)
     if relationship is None:
-        relationship = Relationship.get_or_none(from_device=friend_device, to_device=device, from_key=friend_key.name)
+        relationship = Relationship.get_or_none(from_device=friend_device, to_device=device, from_key=friend_key.name, pending = False)
         if relationship is None:
             raise HTTPException(status_code=404, detail="Relationship not found")
 
