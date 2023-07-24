@@ -27,3 +27,25 @@ async def get_friends(device = Depends(loggedIn)):
     print(db_friends)
     print(type(db_friends))
     return db_friends
+
+@router.delete("/")
+async def delete_friend(device: Device = Depends(loggedIn), friend: InfoDevice = Depends(infodevice)):
+    """
+    Delete a friend
+    """
+    # Verify that the device is valid
+    friend_device = Device.get_or_none(name=friend.name)
+    if friend_device is None:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+    # Verify that the relationship exists
+    relationship = Relationship.get_or_none(from_device=device, to_device=friend_device)
+    if relationship is None:
+        relationship = Relationship.get_or_none(from_device=friend_device, to_device=device)
+        if relationship is None:
+            raise HTTPException(status_code=404, detail="Relationship not found")
+
+    # Delete the relationship
+    relationship.delete_instance()
+    return {"detail": "Relationship deleted"}
+
