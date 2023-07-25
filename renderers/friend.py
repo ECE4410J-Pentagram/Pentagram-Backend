@@ -7,23 +7,44 @@ from utils.models import BaseDevice, InfoDevice, KeyWithOwner
 from utils.device import infodevice
 from typing import List
 from DBModel.db import psql_db
+import pydantic
 
 router = APIRouter(prefix="/api/friend", tags=["friend"])
 
 def get_Baseowner(owner):
     return BaseDevice(name = owner.name)
 
+class FriendRequest(pydantic.BaseModel):
+    id: int
+
+class FriendInfo(KeyWithOwner):
+    id: int
+
 @psql_db.atomic()
 def query_friends(device: Device):
-    from_key = Key.select().join(Relationship, on = (Relationship.to_key == Key.id)).where(Relationship.from_device == device, Relationship.pending == False)
-    from_key = [KeyWithOwner(name = key.name, pk = key.pk, owner = get_Baseowner(key.owner)) for key in from_key]
+    from_relationship = Relationship.select().where(Relationship.from_device == device, Relationship.pending == False)
+    from_key = [FriendInfo(
+        name = relationship.to_key.name, 
+        pk = relationship.to_key.pk, 
+        owner = get_Baseowner(relationship.to_key.owner),
+        id = relationship.id) for relationship in from_relationship]
 
-    to_key = Key.select().join(Relationship, on = (Relationship.from_key == Key.id)).where(Relationship.to_device == device, Relationship.pending == False)
-    to_key = [KeyWithOwner(name = key.name, pk = key.pk, owner = get_Baseowner(key.owner)) for key in to_key]
+    to_relationship = Relationship.select().where(Relationship.to_device == device, Relationship.pending == False)
+    to_key = [FriendInfo(
+        name = relationship.from_key.name,
+        pk = relationship.from_key.pk,
+        owner = get_Baseowner(relationship.from_key.owner),
+        id = relationship.id) for relationship in to_relationship]
+
+    # from_key = Key.select().join(Relationship, on = (Relationship.to_key == Key.id)).where(Relationship.from_device == device, Relationship.pending == False)
+    # from_key = [KeyWithOwner(name = key.name, pk = key.pk, owner = get_Baseowner(key.owner)) for key in from_key]
+
+    # to_key = Key.select().join(Relationship, on = (Relationship.from_key == Key.id)).where(Relationship.to_device == device, Relationship.pending == False)
+    # to_key = [KeyWithOwner(name = key.name, pk = key.pk, owner = get_Baseowner(key.owner)) for key in to_key]
 
     return from_key + to_key
 
-@router.get("/", response_model=List[KeyWithOwner])
+@router.get("/", response_model=List[FriendInfo])
 async def get_friends(device = Depends(loggedIn)):
     db_friends = query_friends(device)
     print(db_friends)
@@ -31,30 +52,19 @@ async def get_friends(device = Depends(loggedIn)):
     return db_friends
 
 @router.delete("/")
-async def delete_friend(friend_key: KeyWithOwner, device: Device = Depends(loggedIn)):
+async def delete_friend(friendship: FriendRequest, device: Device = Depends(loggedIn)):
     """
     Delete a friend
     """
 
-    @psql_db.atomic
+    @psql_db.atomic()
     def _delete_friend():
-        # Verify that the device is valid
-        friend_device = Device.get_or_none(name=friend_key.owner.name)
-        if friend_device is None:
-            raise HTTPException(status_code=404, detail="Device not found")
-
-        db_friend_key = Key.get_or_none(name=friend_key.name, owner=friend_device)
-        if friend_key is None:
-            raise HTTPException(status_code=404, detail="Key not found")
-
-        # Verify that the relationship exists
-        relationship = Relationship.get_or_none(from_device=device, to_device=friend_device, to_key=db_friend_key, pending = False)
-        if relationship is None:
-            relationship = Relationship.get_or_none(from_device=friend_device, to_device=device, from_key=db_friend_key, pending = False)
-            if relationship is None:
-                raise HTTPException(status_code=404, detail="Relationship not found")
-
-        # Delete the relationship
+        try:
+            relationship = Relationship.get_by_id(friendship.id)
+        except Exception as e:
+            raise HTTPException(status_code=404, detail="Relationship not found")
+        if relationship.from_device != device and relationship.to_device != device:
+            raise HTTPException(status_code=403, detail="You are not part of this relationship")
         relationship.delete_instance()
 
     _delete_friend()
