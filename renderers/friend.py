@@ -43,10 +43,14 @@ async def delete_friend(friend_key: KeyWithOwner, device: Device = Depends(logge
         if friend_device is None:
             raise HTTPException(status_code=404, detail="Device not found")
 
+        db_friend_key = Key.get_or_none(name=friend_key.name, owner=friend_device)
+        if friend_key is None:
+            raise HTTPException(status_code=404, detail="Key not found")
+
         # Verify that the relationship exists
-        relationship = Relationship.get_or_none(from_device=device, to_device=friend_device, to_key=friend_key.name, pending = False)
+        relationship = Relationship.get_or_none(from_device=device, to_device=friend_device, to_key=db_friend_key, pending = False)
         if relationship is None:
-            relationship = Relationship.get_or_none(from_device=friend_device, to_device=device, from_key=friend_key.name, pending = False)
+            relationship = Relationship.get_or_none(from_device=friend_device, to_device=device, from_key=db_friend_key, pending = False)
             if relationship is None:
                 raise HTTPException(status_code=404, detail="Relationship not found")
 
