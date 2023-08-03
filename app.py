@@ -6,7 +6,7 @@ from renderers import key
 from renderers import invitation
 from renderers import friend
 
-app = FastAPI(openapi_url="/api/openapi.json", docs_url="/api/docs")
+app = FastAPI(openapi_url="/api/openapi.json", redoc_url="/api/docs")
 
 app.include_router(login.loginRouter)
 app.include_router(logout.router)
