@@ -6,3 +6,4 @@ class Config:
     PDB_PORT = 5432
     REDIS_HOST = "localhost"
     REDIS_PASSWD = ""
+    REDIS_USERNAME = ""

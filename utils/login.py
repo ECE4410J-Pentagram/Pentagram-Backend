@@ -9,7 +9,7 @@ import redis
 from bcrypt import checkpw, hashpw, gensalt
 from utils.peewee import get_db
 
-r = redis.StrictRedis(host=config.REDIS_HOST, password=config.REDIS_PASSWD, port=6379, decode_responses=True)
+r = redis.StrictRedis(host=config.REDIS_HOST, username=config.REDIS_USERNAME ,password=config.REDIS_PASSWD, port=6379, decode_responses=True)
 
 def random_token(length = 32):
     return secrets.token_urlsafe(length)
