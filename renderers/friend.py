@@ -3,7 +3,7 @@ from utils.login import loggedIn
 from DBModel.Device import Device
 from DBModel.Relationship import Relationship
 from DBModel.Key import Key
-from utils.models import BaseDevice, InfoDevice, KeyWithOwner
+from utils.models import BaseDevice, DummyMessage, KeyWithOwner
 from utils.device import infodevice
 from typing import List
 from DBModel.db import psql_db
@@ -51,7 +51,7 @@ async def get_friends(device = Depends(loggedIn)):
     print(type(db_friends))
     return db_friends
 
-@router.delete("/")
+@router.delete("/", response_model=DummyMessage)
 async def delete_friend(friendship: FriendRequest, device: Device = Depends(loggedIn)):
     """
     Delete a friend

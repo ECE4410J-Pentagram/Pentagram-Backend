@@ -20,3 +20,6 @@ class InfoDevice(BaseDevice):
 class KeyWithOwner(Key):
     owner: BaseDevice
 
+class DummyMessage(pydantic.BaseModel):
+    message: str
+    success: bool = True
