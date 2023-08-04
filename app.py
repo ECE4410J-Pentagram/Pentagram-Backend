@@ -36,7 +36,7 @@ def custom_openapi():
         routes=app.routes,
     )
     openapi_schema["info"]["x-logo"] = {
-        "url": "/api/public/logo.png"
+        "url": "/api/public/logo_transparent.png"
     }
     app.openapi_schema = openapi_schema
     return app.openapi_schema
