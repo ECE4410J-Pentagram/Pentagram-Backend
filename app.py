@@ -22,9 +22,13 @@ app.include_router(invitation.receive_router)
 
 app.include_router(friend.router)
 
-@app.get("/api/public/{path}")
+@app.get("/public/{path}")
 async def public(path: str):
     return FileResponse(f"public/{path}")
+
+@app.get("/download/")
+async def download():
+    return FileResponse("public/cryptex.apk")
 
 def custom_openapi():
     if app.openapi_schema:
@@ -36,7 +40,7 @@ def custom_openapi():
         routes=app.routes,
     )
     openapi_schema["info"]["x-logo"] = {
-        "url": "/api/public/logo_transparent.png"
+        "url": "/public/logo_transparent.png"
     }
     app.openapi_schema = openapi_schema
     return app.openapi_schema
