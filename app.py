@@ -6,6 +6,7 @@ from renderers import device
 from renderers import key
 from renderers import invitation
 from renderers import friend
+from renderers import static
 from fastapi.openapi.utils import get_openapi
 
 
@@ -22,13 +23,8 @@ app.include_router(invitation.receive_router)
 
 app.include_router(friend.router)
 
-@app.get("/public/{path}")
-async def public(path: str):
-    return FileResponse(f"public/{path}")
+app.include_router(static.router)
 
-@app.get("/download/")
-async def download():
-    return FileResponse("public/cryptex.apk")
 
 def custom_openapi():
     if app.openapi_schema:
